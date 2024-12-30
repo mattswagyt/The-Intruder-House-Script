@@ -204,12 +204,38 @@ createButton("Disable Lights", function()
 end)
 
 createButton("Bypass Power Outage", function()
+    -- Destroy specific objects related to the power outage
     for _, objName in ipairs({"PowerOut", "isPowerDown", "Breaker", "FuseBox"}) do
         local obj = workspace.Events:FindFirstChild(objName) or workspace.Map:FindFirstChild(objName)
         if obj then
             obj:Destroy()
         end
     end
+
+    -- Destroy the PowerDown sound in workspace.Sounds
+    local powerDownSound = workspace.Sounds:FindFirstChild("PowerDown")
+    if powerDownSound then
+        powerDownSound:Destroy()
+        print("PowerDown sound removed.")
+    end
+
+    -- Destroy PowerOut GUI in PlayerGui
+    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        local powerOutGui = playerGui:FindFirstChild("PowerOut")
+        if powerOutGui then
+            powerOutGui:Destroy()
+            print("PlayerGui PowerOut GUI removed.")
+        end
+    end
+
+    -- Destroy PowerOut GUI in StarterGui
+    local starterGui = game:GetService("StarterGui"):FindFirstChild("PowerOut")
+    if starterGui then
+        starterGui:Destroy()
+        print("StarterGui PowerOut GUI removed.")
+    end
+
     print("Power Outage bypassed!")
 end)
 
