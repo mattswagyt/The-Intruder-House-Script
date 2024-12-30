@@ -1,0 +1,254 @@
+-- Roblox Lua Script for "The Intruder - House" Map (By BMF)
+-- Script handles a draggable UI with multiple functionalities
+
+-- Variables
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create UI Elements
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local LocationLabel = Instance.new("TextLabel")
+local ErrorLog = Instance.new("TextLabel")
+local UIListLayout = Instance.new("UIListLayout")
+
+-- UI Properties
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+Title.Parent = MainFrame
+Title.Text = "The Intruder - House (By BMF)"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+
+LocationLabel.Parent = MainFrame
+LocationLabel.Text = "Location: Loading..."
+LocationLabel.Size = UDim2.new(1, 0, 0, 30)
+LocationLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+LocationLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+LocationLabel.Font = Enum.Font.SourceSans
+LocationLabel.TextSize = 16
+
+ErrorLog.Parent = MainFrame
+ErrorLog.Text = "Error Log: None"
+ErrorLog.Size = UDim2.new(1, 0, 0, 30)
+ErrorLog.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ErrorLog.TextColor3 = Color3.fromRGB(255, 85, 85)
+ErrorLog.Font = Enum.Font.SourceSans
+ErrorLog.TextSize = 14
+ErrorLog.TextWrapped = true
+ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
+
+UIListLayout.Parent = MainFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Function to Create Buttons
+local function createButton(name, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = MainFrame
+    Button.Text = name
+    Button.Size = UDim2.new(1, 0, 0, 30)
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 16
+    Button.MouseButton1Click:Connect(function()
+        pcall(callback)
+    end)
+    return Button
+end
+
+-- Update Intruder's Location
+spawn(function()
+    while true do
+        local success, result = pcall(function()
+            return workspace.Values.intruderPos.Value
+        end)
+        if success then
+            LocationLabel.Text = "Location: " .. tostring(result)
+        else
+            LocationLabel.Text = "Location: Error"
+            ErrorLog.Text = "Error Log: Failed to fetch intruder location."
+        end
+        wait(1)
+    end
+end)
+
+-- Buttons with Functions
+createButton("The Intruder - Mall (Script by BMF)", function()
+    print("The Intruder - Mall script executed!")
+    loadstring(game:HttpGet('https://pastebin.com/raw/tVqZbfXh'))()
+end)
+
+createButton("Other Intruder Script", function()
+    print("Other script triggered")
+    loadstring(game:HttpGet("https://pastebin.com/raw/FGjjwm6W"))()
+end)
+
+createButton("Infinite Yield", function()
+    local success, result = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+    end)
+    if success then
+        print("Infinite Yield executed!")
+    else
+        print("Error executing Infinite Yield")
+    end
+end)
+
+createButton("Intruder Ignores You", function()
+    local player = game:GetService("Players").LocalPlayer
+    local deathGui = player.PlayerGui:FindFirstChild("Death")
+    
+    if deathGui and deathGui:FindFirstChild("canExecute") then
+        local canExecute = deathGui.canExecute
+        -- Disable continuously without performance hit
+        while true do
+            canExecute.Value = false
+            wait(0.1)
+        end
+    else
+        print("DeathGUI or canExecute not found!")
+    end
+    
+    -- Delete ShameTeleport if it exists in workspace
+    local shameTeleport = workspace:FindFirstChild("ShameTeleport")
+    if shameTeleport then
+        shameTeleport:Destroy()
+    end
+end)
+
+createButton("Make Nightmare Mode", function()
+    local values = workspace.Values
+    if values then
+        values.isEasyMode.Value = false
+        values.isNightmareMode.Value = true
+    end
+end)
+
+-- "Break Anxiety" function now locks the value constantly
+createButton("Break Anxiety", function()
+    local anxietyEvent = workspace.Events.Anxiety
+    -- Set the Anxiety value initially
+    anxietyEvent.Value = -696969696969
+    
+    -- Continuously lock the Anxiety value to the set number
+    while true do
+        anxietyEvent.Value = -696969696969
+        wait(0.1)  -- Adjust the delay as necessary to prevent performance issues
+    end
+end)
+
+createButton("Break Awareness", function()
+    -- Continuously destroy the IntruderAwareness, AwarenessValue, and IntruderAwareness in StarterGui if they exist
+    while true do
+        local intruderAwareness = workspace.Events:FindFirstChild("IntruderAwareness")
+        local awarenessValue = workspace.Events:FindFirstChild("AwarenessValue")
+        local starterGuiIntruderAwareness = game:GetService("StarterGui"):FindFirstChild("IntruderAwareness")
+        
+        -- Delete IntruderAwareness in workspace.Events if it exists
+        if intruderAwareness then
+            intruderAwareness:Destroy()
+        end
+
+        -- Delete AwarenessValue if it exists
+        if awarenessValue then
+            awarenessValue:Destroy()
+        end
+
+        -- Delete IntruderAwareness in StarterGui if it exists
+        if starterGuiIntruderAwareness then
+            starterGuiIntruderAwareness:Destroy()
+        end
+
+        wait(0.1)  -- Short delay to prevent performance issues and keep checking for the objects
+    end
+end)
+
+createButton("Break Entity", function()
+    local intruder = workspace.Map:FindFirstChild("Intruder")
+    if intruder then
+        intruder:Destroy()
+    end
+end)
+
+createButton("Disable Lights", function()
+    local lightSwitch = workspace.Map:FindFirstChild("LightSwitch")
+    if lightSwitch then
+        lightSwitch:Destroy()
+    end
+    
+    local fanLight = workspace.Map.Fan:FindFirstChild("Light")
+    if fanLight then
+        fanLight:Destroy()
+    end
+end)
+
+createButton("Bypass Power Outage", function()
+    -- Destroy the PowerOut object in StarterGui
+    local powerOutGui = game:GetService("StarterGui"):FindFirstChild("PowerOut")
+    if powerOutGui then
+        powerOutGui:Destroy()
+    end
+
+    -- Destroy the isPowerDown value in workspace.Events
+    local powerDownValue = workspace.Events:FindFirstChild("isPowerDown")
+    if powerDownValue then
+        powerDownValue:Destroy()
+    end
+
+    -- Destroy the Breaker object in workspace.Map
+    local breaker = workspace.Map:FindFirstChild("Breaker")
+    if breaker then
+        breaker:Destroy()
+    end
+
+    -- Destroy the FuseBox object in workspace.Map
+    local fuseBox = workspace.Map:FindFirstChild("FuseBox")
+    if fuseBox then
+        fuseBox:Destroy()
+    end
+end)
+
+createButton("Delete Closet Door", function()
+    local closetDoor = workspace.Map:FindFirstChild("ClosetDoor")
+    if closetDoor then
+        closetDoor:Destroy()
+    end
+end)
+
+createButton("Delete Phone", function()
+    local phone = workspace.Map:FindFirstChild("Phone")
+    if phone then
+        phone:Destroy()
+    end
+end)
+
+createButton("Delete Tutorial", function()
+    local book = workspace:FindFirstChild("Book")
+    if book then
+        book:Destroy()
+    end
+end)
+
+createButton("Delete Cameras", function()
+    local turnOnCamera = workspace.Map:FindFirstChild("TurnOnCamera")
+    if turnOnCamera then
+        turnOnCamera:Destroy()
+    end
+end)
+
+-- Final Touch
+print("The Intruder - House Script Loaded Successfully")
