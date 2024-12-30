@@ -160,16 +160,22 @@ end)
 createButton("Break Awareness", function()
     spawn(function()
         while true do
-            for _, objName in ipairs({"IntruderAwareness", "AwarenessValue"}) do
-                local obj = workspace.Events:FindFirstChild(objName)
-                if obj then
-                    obj:Destroy()
+            local awareness = workspace.Events:FindFirstChild("IntruderAwareness")
+            if awareness and awareness:IsA("NumberValue") then
+                if awareness.Value ~= 0 then
+                    awareness.Value = 0
                 end
+                -- Lock the value to 0
+                awareness.Changed:Connect(function()
+                    if awareness.Value ~= 0 then
+                        awareness.Value = 0
+                    end
+                end)
             end
-            wait(0.1)
+            wait(0.1) -- Small delay to optimize loop
         end
     end)
-    print("Awareness system broken!")
+    print("Awareness system locked at 0!")
 end)
 
 createButton("Break Entity", function()
