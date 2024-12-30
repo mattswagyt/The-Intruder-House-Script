@@ -115,15 +115,17 @@ createButton("Intruder Ignores You", function()
     if deathGui and deathGui:FindFirstChild("canExecute") then
         local canExecute = deathGui.canExecute
         -- Disable continuously without performance hit
-        while true do
-            canExecute.Value = false
-            wait(0.1)
-            print("The Intruder will now ignore you!")
-        end
+        spawn(function()
+            while true do
+                canExecute.Value = false
+                wait(0.1)
+            end
+        end)
+        print("The Intruder will now ignore you!")
     else
         print("DeathGUI or canExecute not found!")
     end
-    
+
     -- Delete ShameTeleport if it exists in workspace
     local shameTeleport = workspace:FindFirstChild("ShameTeleport")
     if shameTeleport then
@@ -140,51 +142,41 @@ createButton("Make Nightmare Mode", function()
     end
 end)
 
--- "Break Anxiety" function now locks the value constantly
 createButton("Break Anxiety", function()
-    local anxietyEvent = workspace.Events.Anxiety
-    -- Set the Anxiety value initially
-    anxietyEvent.Value = -696969696969
-    
-    -- Continuously lock the Anxiety value to the set number
-    while true do
-        anxietyEvent.Value = -696969696969
-        wait(0.1)  -- Adjust the delay as necessary to prevent performance issues
+    local anxietyEvent = workspace.Events:FindFirstChild("Anxiety")
+    if anxietyEvent then
+        spawn(function()
+            while true do
+                anxietyEvent.Value = -696969696969
+                wait(0.1)
+            end
+        end)
+        print("Anxiety has been broken!")
+    else
+        print("Anxiety Event not found!")
     end
 end)
 
 createButton("Break Awareness", function()
-    -- Continuously destroy the IntruderAwareness, AwarenessValue, and IntruderAwareness in StarterGui if they exist
-    while true do
-        local intruderAwareness = workspace.Events:FindFirstChild("IntruderAwareness")
-        local awarenessValue = workspace.Events:FindFirstChild("AwarenessValue")
-        local starterGuiIntruderAwareness = game:GetService("StarterGui"):FindFirstChild("IntruderAwareness")
-        
-        -- Delete IntruderAwareness in workspace.Events if it exists
-        if intruderAwareness then
-            intruderAwareness:Destroy()
+    spawn(function()
+        while true do
+            for _, objName in ipairs({"IntruderAwareness", "AwarenessValue"}) do
+                local obj = workspace.Events:FindFirstChild(objName)
+                if obj then
+                    obj:Destroy()
+                end
+            end
+            wait(0.1)
         end
-
-        -- Delete AwarenessValue if it exists
-        if awarenessValue then
-            awarenessValue:Destroy()
-        end
-
-        -- Delete IntruderAwareness in StarterGui if it exists
-        if starterGuiIntruderAwareness then
-            starterGuiIntruderAwareness:Destroy()
-        end
-
-        wait(0.1)  -- Short delay to prevent performance issues and keep checking for the objects
-    end
+    end)
+    print("Awareness system broken!")
 end)
 
 createButton("Break Entity", function()
     local intruder = workspace.Map:FindFirstChild("Intruder")
     if intruder then
         intruder:Destroy()
-        print("The Intruder is now gone!")
-        print("Does that mean you've won? :0")
+        print("The Intruder is now gone! Does that mean you've won? :0")
     end
 end)
 
@@ -197,41 +189,18 @@ createButton("Disable Lights", function()
     local fanLight = workspace.Map.Fan:FindFirstChild("Light")
     if fanLight then
         fanLight:Destroy()
-        print("Lights Disabled!")
     end
+    print("Lights Disabled!")
 end)
 
 createButton("Bypass Power Outage", function()
-    -- Destroy the PowerOut object in StarterGui
-    local powerOutGui = game:GetService("StarterGui"):FindFirstChild("PowerOut")
-    if powerOutGui then
-        powerOutGui:Destroy()
+    for _, objName in ipairs({"PowerOut", "isPowerDown", "Breaker", "FuseBox"}) do
+        local obj = workspace.Events:FindFirstChild(objName) or workspace.Map:FindFirstChild(objName)
+        if obj then
+            obj:Destroy()
+        end
     end
-
-    -- Destroy the isPowerDown value in workspace.Events
-    local powerDownValue = workspace.Events:FindFirstChild("isPowerDown")
-    if powerDownValue then
-        powerDownValue:Destroy()
-    end
-
-    -- Destroy the Breaker object in workspace.Map
-    local breaker = workspace.Map:FindFirstChild("Breaker")
-    if breaker then
-        breaker:Destroy()
-    end
-
-    -- Destroy the FuseBox object in workspace.Map
-    local fuseBox = workspace.Map:FindFirstChild("FuseBox")
-    if fuseBox then
-        fuseBox:Destroy()
-    end
-
-    -- Destroy the PowerOut object in PlayerGui
-    local playerPowerOutGui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("PowerOut")
-    if playerPowerOutGui then
-        playerPowerOutGui:Destroy()
-        print("Power Outage bypassed!")
-    end
+    print("Power Outage bypassed!")
 end)
 
 createButton("Delete Closet Door", function()
@@ -267,8 +236,7 @@ createButton("Delete Cameras", function()
 end)
 
 createButton("Become The Intruder (WIP!)", function()
-    print("You are now playing as The Intruder!")
-    end
+    print("You are now playing as The Intruder! (Work in Progress)")
 end)
 
 -- Final Touch
