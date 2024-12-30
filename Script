@@ -118,6 +118,7 @@ createButton("Intruder Ignores You", function()
         while true do
             canExecute.Value = false
             wait(0.1)
+            print("The Intruder will now ignore you!")
         end
     else
         print("DeathGUI or canExecute not found!")
@@ -135,6 +136,7 @@ createButton("Make Nightmare Mode", function()
     if values then
         values.isEasyMode.Value = false
         values.isNightmareMode.Value = true
+        print("It is now Nightmare Mode!")
     end
 end)
 
@@ -181,6 +183,8 @@ createButton("Break Entity", function()
     local intruder = workspace.Map:FindFirstChild("Intruder")
     if intruder then
         intruder:Destroy()
+        print("The Intruder is now gone!")
+        print("Does that mean you've won? :0")
     end
 end)
 
@@ -193,6 +197,7 @@ createButton("Disable Lights", function()
     local fanLight = workspace.Map.Fan:FindFirstChild("Light")
     if fanLight then
         fanLight:Destroy()
+        print("Lights Disabled!")
     end
 end)
 
@@ -220,12 +225,20 @@ createButton("Bypass Power Outage", function()
     if fuseBox then
         fuseBox:Destroy()
     end
+
+    -- Destroy the PowerOut object in PlayerGui
+    local playerPowerOutGui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("PowerOut")
+    if playerPowerOutGui then
+        playerPowerOutGui:Destroy()
+        print("Power Outage bypassed!")
+    end
 end)
 
 createButton("Delete Closet Door", function()
     local closetDoor = workspace.Map:FindFirstChild("ClosetDoor")
     if closetDoor then
         closetDoor:Destroy()
+        print("Closet Door deleted!")
     end
 end)
 
@@ -233,6 +246,7 @@ createButton("Delete Phone", function()
     local phone = workspace.Map:FindFirstChild("Phone")
     if phone then
         phone:Destroy()
+        print("Phone deleted!")
     end
 end)
 
@@ -240,6 +254,7 @@ createButton("Delete Tutorial", function()
     local book = workspace:FindFirstChild("Book")
     if book then
         book:Destroy()
+        print("Tutorial deleted!")
     end
 end)
 
@@ -247,6 +262,12 @@ createButton("Delete Cameras", function()
     local turnOnCamera = workspace.Map:FindFirstChild("TurnOnCamera")
     if turnOnCamera then
         turnOnCamera:Destroy()
+        print("Cameras deleted!")
+    end
+end)
+
+createButton("Become The Intruder (WIP!)", function()
+    print("You are now playing as The Intruder!")
     end
 end)
 
