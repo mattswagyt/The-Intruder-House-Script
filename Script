@@ -159,23 +159,27 @@ end)
 
 createButton("Break Awareness", function()
     spawn(function()
+        -- Destroy the awareness GUI in StarterGui
+        local starterGuiAwareness = game:GetService("StarterGui"):FindFirstChild("IntruderAwareness")
+        if starterGuiAwareness then
+            starterGuiAwareness:Destroy()
+            print("StarterGui IntruderAwareness removed.")
+        end
+
+        -- Continuously monitor and destroy the awareness GUI in the PlayerGui
         while true do
-            local awareness = workspace.Events:FindFirstChild("IntruderAwareness")
-            if awareness and awareness:IsA("NumberValue") then
-                if awareness.Value ~= 0 then
-                    awareness.Value = 0
+            local playerGuiAwareness = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+            if playerGuiAwareness then
+                local awareness = playerGuiAwareness:FindFirstChild("IntruderAwareness")
+                if awareness then
+                    awareness:Destroy()
+                    print("PlayerGui IntruderAwareness removed.")
                 end
-                -- Lock the value to 0
-                awareness.Changed:Connect(function()
-                    if awareness.Value ~= 0 then
-                        awareness.Value = 0
-                    end
-                end)
             end
-            wait(0.1) -- Small delay to optimize loop
+            wait(0.1) -- Check periodically to ensure it stays removed
         end
     end)
-    print("Awareness system locked at 0!")
+    print("Awareness system hidden!")
 end)
 
 createButton("Break Entity", function()
