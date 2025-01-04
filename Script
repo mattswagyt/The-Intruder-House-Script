@@ -292,6 +292,7 @@ end)
 createButton("Become The Intruder (WIP!)", function()
     local player = game:GetService("Players").LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
+    local camera = game:GetService("Workspace").CurrentCamera
     local intruder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Intruder")
 
     if not intruder then
@@ -327,9 +328,22 @@ createButton("Become The Intruder (WIP!)", function()
         print("The Intruder's position part not found!")
     end
 
-    -- Set the player to first-person mode
-    player.CameraMode = Enum.CameraMode.LockFirstPerson
-    print("Camera set to first person. You are now playing as The Intruder!")
+    -- Unlock the camera and allow free movement
+    camera.CameraType = Enum.CameraType.Scriptable
+    print("Camera unlocked. You can now move freely in first and third person.")
+
+    -- Make the camera aim toward the intruder's direction
+    local function updateCamera()
+        while true do
+            if intruder and intruderPosition then
+                camera.CFrame = CFrame.new(camera.CFrame.Position, intruderPosition.Position)
+            end
+            wait(0.1) -- Update every 0.1 seconds
+        end
+    end
+
+    -- Run the camera update in a separate thread
+    spawn(updateCamera)
 end)
 
 -- Final Touch
