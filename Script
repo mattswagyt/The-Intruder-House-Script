@@ -130,6 +130,24 @@ createButton("Intruder Ignores You", function()
     local shameTeleport = workspace:FindFirstChild("ShameTeleport")
     if shameTeleport then
         shameTeleport:Destroy()
+        print("ShameTeleport destroyed!")
+    end
+
+    -- Destroy Events.FindPlayer.TouchInterest if it exists
+    local findPlayer = workspace:FindFirstChild("Events")
+    if findPlayer and findPlayer:FindFirstChild("FindPlayer") then
+        local touchInterest = findPlayer.FindPlayer:FindFirstChild("TouchInterest")
+        if touchInterest then
+            touchInterest:Destroy()
+            print("TouchInterest destroyed!")
+        end
+    end
+
+    -- Destroy BoxOfShame if it exists
+    local boxOfShame = workspace:FindFirstChild("BoxOfShame")
+    if boxOfShame then
+        boxOfShame:Destroy()
+        print("BoxOfShame destroyed!")
     end
 end)
 
@@ -272,7 +290,46 @@ createButton("Delete Cameras", function()
 end)
 
 createButton("Become The Intruder (WIP!)", function()
-    print("You are now playing as The Intruder! (Work in Progress)")
+    local player = game:GetService("Players").LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local intruder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Intruder")
+
+    if not intruder then
+        print("Intruder not found in the map!")
+        return
+    end
+
+    -- Make the player invisible by removing their HumanoidRootPart
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart:Destroy()
+        print("HumanoidRootPart removed. You are now invisible!")
+    else
+        print("HumanoidRootPart not found in the character!")
+    end
+
+    -- Attach player to The Intruder
+    local intruderPosition = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
+    if intruderPosition then
+        -- Weld player's torso (or another part) to The Intruder's HumanoidRootPart
+        local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
+        if torso then
+            local weld = Instance.new("Weld")
+            weld.Part0 = torso
+            weld.Part1 = intruderPosition
+            weld.C0 = CFrame.new(0, 0, 0) -- Align to The Intruder's position
+            weld.Parent = torso
+            print("You are now attached to The Intruder!")
+        else
+            print("No torso found in the character to weld.")
+        end
+    else
+        print("The Intruder's position part not found!")
+    end
+
+    -- Set the player to first-person mode
+    player.CameraMode = Enum.CameraMode.LockFirstPerson
+    print("Camera set to first person. You are now playing as The Intruder!")
 end)
 
 -- Final Touch
