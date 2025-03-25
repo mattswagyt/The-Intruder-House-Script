@@ -4,14 +4,7 @@
 -- Variables
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 10) -- Wait for PlayerGui with a timeout
-local UserInputService = game:GetService("UserInputService") -- To handle keyboard input
-
--- Check if PlayerGui is successfully loaded
-if not PlayerGui then
-    warn("PlayerGui not found!")
-    return
-end
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 -- Create UI Elements
 local ScreenGui = Instance.new("ScreenGui")
@@ -156,6 +149,201 @@ createButton("Intruder Ignores You", function()
         boxOfShame:Destroy()
         print("BoxOfShame destroyed!")
     end
+end)
+
+createButton("Make Nightmare Mode", function()
+    local values = workspace.Values
+    if values then
+        values.isEasyMode.Value = false
+        values.isNightmareMode.Value = true
+        print("It is now Nightmare Mode!")
+    end
+end)
+
+createButton("Break Anxiety", function()
+    local anxietyEvent = workspace.Events:FindFirstChild("Anxiety")
+    if anxietyEvent then
+        spawn(function()
+            while true do
+                anxietyEvent.Value = -696969696969
+                wait(0.1)
+            end
+        end)
+        print("Anxiety has been broken!")
+    else
+        print("Anxiety Event not found!")
+    end
+end)
+
+createButton("Break Awareness", function()
+    spawn(function()
+        -- Destroy the awareness GUI in StarterGui
+        local starterGuiAwareness = game:GetService("StarterGui"):FindFirstChild("IntruderAwareness")
+        if starterGuiAwareness then
+            starterGuiAwareness:Destroy()
+            print("StarterGui IntruderAwareness removed.")
+        end
+
+        -- Continuously monitor and destroy the awareness GUI in the PlayerGui
+        while true do
+            local playerGuiAwareness = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+            if playerGuiAwareness then
+                local awareness = playerGuiAwareness:FindFirstChild("IntruderAwareness")
+                if awareness then
+                    awareness:Destroy()
+                    print("PlayerGui IntruderAwareness removed.")
+                end
+            end
+            wait(0.1) -- Check periodically to ensure it stays removed
+        end
+    end)
+    print("Awareness system hidden!")
+end)
+
+createButton("Break Entity", function()
+    local intruder = workspace.Map:FindFirstChild("Intruder")
+    if intruder then
+        intruder:Destroy()
+        print("The Intruder is now gone! Does that mean you've won? :0")
+    end
+end)
+
+createButton("Disable Lights", function()
+    local lightSwitch = workspace.Map:FindFirstChild("LightSwitch")
+    if lightSwitch then
+        lightSwitch:Destroy()
+    end
+    
+    local fanLight = workspace.Map.Fan:FindFirstChild("Light")
+    if fanLight then
+        fanLight:Destroy()
+    end
+    print("Lights Disabled!")
+end)
+
+createButton("Bypass Power Outage", function()
+    -- Destroy specific objects related to the power outage
+    for _, objName in ipairs({"PowerOut", "isPowerDown", "Breaker", "FuseBox"}) do
+        local obj = workspace.Events:FindFirstChild(objName) or workspace.Map:FindFirstChild(objName)
+        if obj then
+            obj:Destroy()
+        end
+    end
+
+    -- Destroy the PowerDown sound in workspace.Sounds
+    local powerDownSound = workspace.Sounds:FindFirstChild("PowerDown")
+    if powerDownSound then
+        powerDownSound:Destroy()
+        print("PowerDown sound removed.")
+    end
+
+    -- Destroy PowerOut GUI in PlayerGui
+    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        local powerOutGui = playerGui:FindFirstChild("PowerOut")
+        if powerOutGui then
+            powerOutGui:Destroy()
+            print("PlayerGui PowerOut GUI removed.")
+        end
+    end
+
+    -- Destroy PowerOut GUI in StarterGui
+    local starterGui = game:GetService("StarterGui"):FindFirstChild("PowerOut")
+    if starterGui then
+        starterGui:Destroy()
+        print("StarterGui PowerOut GUI removed.")
+    end
+
+    print("Power Outage bypassed!")
+end)
+
+createButton("Delete Closet Door", function()
+    local closetDoor = workspace.Map:FindFirstChild("ClosetDoor")
+    if closetDoor then
+        closetDoor:Destroy()
+        print("Closet Door deleted!")
+    end
+end)
+
+createButton("Delete Phone", function()
+    local phone = workspace.Map:FindFirstChild("Phone")
+    if phone then
+        phone:Destroy()
+        print("Phone deleted!")
+    end
+end)
+
+createButton("Delete Tutorial", function()
+    local book = workspace:FindFirstChild("Book")
+    if book then
+        book:Destroy()
+        print("Tutorial deleted!")
+    end
+end)
+
+createButton("Delete Cameras", function()
+    local turnOnCamera = workspace.Map:FindFirstChild("TurnOnCamera")
+    if turnOnCamera then
+        turnOnCamera:Destroy()
+        print("Cameras deleted!")
+    end
+end)
+
+createButton("Become The Intruder (WIP!)", function()
+    local player = game:GetService("Players").LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local camera = game:GetService("Workspace").CurrentCamera
+    local intruder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Intruder")
+
+    if not intruder then
+        print("Intruder not found in the map!")
+        return
+    end
+
+    -- Make the player invisible by removing their HumanoidRootPart
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart:Destroy()
+        print("HumanoidRootPart removed. You are now invisible!")
+    else
+        print("HumanoidRootPart not found in the character!")
+    end
+
+    -- Attach player to The Intruder
+    local intruderPosition = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
+    if intruderPosition then
+        -- Weld player's torso (or another part) to The Intruder's HumanoidRootPart
+        local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
+        if torso then
+            local weld = Instance.new("Weld")
+            weld.Part0 = torso
+            weld.Part1 = intruderPosition
+            weld.C0 = CFrame.new(0, 0, 0) -- Align to The Intruder's position
+            weld.Parent = torso
+            print("You are now attached to The Intruder!")
+        else
+            print("No torso found in the character to weld.")
+        end
+    else
+        print("The Intruder's position part not found!")
+    end
+
+    -- Unlock the camera and allow free movement
+    camera.CameraType = Enum.CameraType.Scriptable
+    print("Camera unlocked. You can now move freely in first and third person.")
+
+    -- Make the camera aim toward the intruder's direction
+    local function updateCamera()
+        while true do
+            if intruder and intruderPosition then
+                camera.CFrame = CFrame.new(camera.CFrame.Position, intruderPosition.Position)
+            end
+            wait(0.1) -- Update every 0.1 seconds
+        end
+    end
+
+    -- Run the camera update in a separate thread
+    spawn(updateCamera)
 end)
 
 -- Allow full mouse control in multiplayer
