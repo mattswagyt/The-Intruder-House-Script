@@ -346,10 +346,6 @@ createButton("Become The Intruder (WIP!)", function()
     spawn(updateCamera)
 end)
 
--- Allow full mouse control in multiplayer
-UserInputService.MouseIconEnabled = true
-game:GetService("UserInputService").MouseBehavior = Enum.MouseBehavior.Default
-
 -- Toggle UI visibility with Delete key
 local uiVisible = true
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
