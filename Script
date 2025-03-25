@@ -346,16 +346,5 @@ createButton("Become The Intruder (WIP!)", function()
     spawn(updateCamera)
 end)
 
--- Toggle UI visibility with Delete key
-local uiVisible = true
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Delete then
-            uiVisible = not uiVisible
-            ScreenGui.Enabled = uiVisible
-        end
-    end
-end)
-
 -- Final Touch
 print("The Intruder - House Script Loaded Successfully")
