@@ -4,8 +4,14 @@
 -- Variables
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 10) -- Wait for PlayerGui with a timeout
 local UserInputService = game:GetService("UserInputService") -- To handle keyboard input
+
+-- Check if PlayerGui is successfully loaded
+if not PlayerGui then
+    warn("PlayerGui not found!")
+    return
+end
 
 -- Create UI Elements
 local ScreenGui = Instance.new("ScreenGui")
