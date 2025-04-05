@@ -3,6 +3,9 @@
 
 -- Variables
 local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
+local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
@@ -17,6 +20,7 @@ local UIListLayout = Instance.new("UIListLayout")
 -- UI Properties
 ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "IntruderUI"
 
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -24,6 +28,7 @@ MainFrame.Size = UDim2.new(0, 300, 0, 400)
 MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.Visible = true
 
 Title.Parent = MainFrame
 Title.Text = "The Intruder - House (By BMF)"
@@ -54,6 +59,13 @@ ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 UIListLayout.Parent = MainFrame
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+-- Toggle UI with Delete key
+UIS.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.Delete then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
 -- Function to Create Buttons
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
@@ -70,7 +82,16 @@ local function createButton(name, callback)
     return Button
 end
 
--- Update Intruder's Location
+-- Intruder Hallway Warning Notification (NEW)
+local function notifyWarning()
+    StarterGui:SetCore("SendNotification", {
+        Title = "WARNING",
+        Text = "The Intruder is coming your way! Turn off the lights, and hide in the closet!",
+        Duration = 5
+    })
+end
+
+-- Track Intruder Location
 spawn(function()
     while true do
         local success, result = pcall(function()
@@ -78,6 +99,11 @@ spawn(function()
         end)
         if success then
             LocationLabel.Text = "Location: " .. tostring(result)
+
+            -- Trigger hallway warning if detected
+            if tostring(result):lower():find("hallway") then
+                notifyWarning()
+            end
         else
             LocationLabel.Text = "Location: Error"
             ErrorLog.Text = "Error Log: Failed to fetch intruder location."
@@ -106,6 +132,17 @@ createButton("Infinite Yield", function()
     else
         print("Error executing Infinite Yield")
     end
+end)
+
+-- Full Bright Function (NEW)
+createButton("Full Bright", function()
+    -- Set all lighting properties to max visibility
+    Lighting.Brightness = 5
+    Lighting.ClockTime = 14
+    Lighting.FogEnd = 100000
+    Lighting.GlobalShadows = false
+    Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    print("Full Bright activated!")
 end)
 
 createButton("Intruder Ignores You", function()
