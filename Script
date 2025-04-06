@@ -259,8 +259,19 @@ createButton("Disable Lights", function()
 end)
 
 createButton("Bypass Power Outage", function()
+    -- Constantly set workspace.Events.isPowerDown to false
+    local powerDownStatus = workspace.Events:FindFirstChild("isPowerDown")
+    if powerDownStatus then
+        task.spawn(function()
+            while true do
+                powerDownStatus.Value = false
+                task.wait(0.1)  -- Small delay to avoid overloading the system
+            end
+        end)
+    end
+
     -- Destroy specific objects related to the power outage
-    for _, objName in ipairs({"PowerOut", "isPowerDown", "Breaker", "FuseBox"}) do
+    for _, objName in ipairs({"PowerOut", "Breaker", "FuseBox"}) do
         local obj = workspace.Events:FindFirstChild(objName) or workspace.Map:FindFirstChild(objName)
         if obj then
             obj:Destroy()
