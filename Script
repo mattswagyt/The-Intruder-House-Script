@@ -134,6 +134,53 @@ createButton("Infinite Yield", function()
     end
 end)
 
+createButton("Win Game (NEW!)", function()
+    local success, result = pcall(function()
+        -- Set audio to looped and playing
+        local busySound = workspace.Map.Phone.Speaker.Busy
+        local ringSound = workspace.Map.Phone.Speaker.TelephoneRing
+
+        if busySound and ringSound then
+            busySound.Looped = true
+            ringSound.Looped = true
+
+            busySound:Play()
+            ringSound:Play()
+        end
+
+        -- Disable first AnswerGuide (ProximityPrompt + Script)
+        local answerGuide1 = workspace.Map.Phone.Speaker:FindFirstChild("AnswerGuide")
+        if answerGuide1 then
+            local prompt1 = answerGuide1:FindFirstChildOfClass("ProximityPrompt")
+            local script1 = answerGuide1:FindFirstChild("Answer")
+            if prompt1 then prompt1.Enabled = false end
+            if script1 then script1.Disabled = true end
+        end
+
+        -- Enable second AnswerGuide2 (ProximityPrompt + Script)
+        local answerGuide2 = workspace.Map.Phone.Speaker:FindFirstChild("AnswerGuide2")
+        if answerGuide2 then
+            local prompt2 = answerGuide2:FindFirstChildOfClass("ProximityPrompt")
+            local script2 = answerGuide2:FindFirstChild("Answer")
+            if prompt2 then prompt2.Enabled = true end
+            if script2 then script2.Disabled = false end
+        end
+
+        -- Set canCallPolice to true
+        local canCallPolice = workspace.Map.Phone.Speaker:FindFirstChild("canCallPolice")
+        if canCallPolice and canCallPolice:IsA("BoolValue") then
+            canCallPolice.Value = true
+        end
+    end)
+
+    if success then
+        print("You won the game! :D")
+    else
+        warn("Error winning the game:", result)
+    end
+end)
+
+
 -- Full Bright Function (NEW)
 createButton("Full Bright", function()
     -- Set all lighting properties to max visibility
