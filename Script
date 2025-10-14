@@ -115,7 +115,7 @@ end)
 -- Buttons with Functions
 createButton("The Intruder - Mall (Script by BMF)", function()
     print("The Intruder - Mall script executed!")
-    loadstring(game:HttpGet('https://pastebin.com/raw/tVqZbfXh'))()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/mattswagyt/Intruder-Mall/refs/heads/main/Script'))()
 end)
 
 createButton("Other Intruder Script", function()
