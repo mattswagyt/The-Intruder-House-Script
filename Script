@@ -136,87 +136,90 @@ end)
 
 createButton("Win Game", function()
     local success, result = pcall(function()
-        -- Helper to find the first ProximityPrompt anywhere under a parent
-        local function findProximityPrompt(parent)
-            if not parent then return nil end
-            for _, desc in ipairs(parent:GetDescendants()) do
-                if desc:IsA("ProximityPrompt") then
-                    return desc
+        local Workspace = workspace
+
+        -- Helper: find the first ProximityPrompt under `obj` (recursively)
+        local function findProximityPrompt(obj)
+            if not obj then return nil end
+            for _, descendant in ipairs(obj:GetDescendants()) do
+                if descendant:IsA("ProximityPrompt") then
+                    return descendant
                 end
             end
             return nil
         end
 
-        -- Play and loop sounds (if present)
-        local speaker = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Phone") and workspace.Map.Phone:FindFirstChild("Speaker")
-        if speaker then
-            local busySound = speaker:FindFirstChild("Busy")
-            local ringSound = speaker:FindFirstChild("TelephoneRing")
+        local speaker = Workspace:FindFirstChild("Map")
+            and Workspace.Map:FindFirstChild("Phone")
+            and Workspace.Map.Phone:FindFirstChild("Speaker")
 
-            if busySound and busySound:IsA("Sound") then
-                busySound.Looped = true
-                if not busySound.IsPlaying then busySound:Play() end
-            end
-            if ringSound and ringSound:IsA("Sound") then
-                ringSound.Looped = true
-                if not ringSound.IsPlaying then ringSound:Play() end
-            end
-        else
+        if not speaker then
             warn("Speaker not found at workspace.Map.Phone.Speaker")
+            return
         end
 
-        -- Disable AnswerGuide (ProximityPrompt + Answer script)
-        local answerGuide1 = speaker and speaker:FindFirstChild("AnswerGuide")
+        -- Play and loop sounds (guarded)
+        local function playLoopedSound(name)
+            local s = speaker:FindFirstChild(name)
+            if s and s:IsA("Sound") then
+                s.Looped = true
+                if not s.IsPlaying then
+                    s:Play()
+                end
+            else
+                warn("Sound missing or not a Sound:", name)
+            end
+        end
+
+        playLoopedSound("Busy")
+        playLoopedSound("TelephoneRing")
+
+        -- Disable AnswerGuide's proximity prompt and Answer script
+        local answerGuide1 = speaker:FindFirstChild("AnswerGuide")
         if answerGuide1 then
             local prompt1 = findProximityPrompt(answerGuide1)
             if prompt1 then
                 prompt1.Enabled = false
             else
-                warn("No ProximityPrompt found under AnswerGuide")
+                warn("No ProximityPrompt found under AnswerGuide (searching descendants).")
             end
 
-            local script1 = answerGuide1:FindFirstChild("Answer")
-            if script1 and script1:IsA("LuaSourceContainer") or (script1 and script1:IsA("ModuleScript")) then
-                -- For regular Script/LocalScript, use Disabled; ModuleScript can't be disabled so skip
-                if script1:IsA("Script") or script1:IsA("LocalScript") then
-                    script1.Disabled = true
-                end
-            elseif script1 then
-                -- If it's some other type (ModuleScript), just warn
-                warn("AnswerGuide.Answer exists but is not a Script/LocalScript; can't toggle Disabled on ModuleScript")
+            local ansScript1 = answerGuide1:FindFirstChild("Answer")
+            if ansScript1 and (ansScript1:IsA("Script") or ansScript1:IsA("LocalScript")) then
+                ansScript1.Disabled = true
+            elseif ansScript1 then
+                warn("AnswerGuide.Answer exists but is not a Script/LocalScript; cannot toggle Disabled.")
             end
         else
-            warn("AnswerGuide not found (path: workspace.Map.Phone.Speaker.AnswerGuide)")
+            warn("AnswerGuide not found under Speaker.")
         end
 
-        -- Enable AnswerGuide2 (ProximityPrompt + Answer script)
-        local answerGuide2 = speaker and speaker:FindFirstChild("AnswerGuide2")
+        -- Enable AnswerGuide2's proximity prompt and Answer script
+        local answerGuide2 = speaker:FindFirstChild("AnswerGuide2")
         if answerGuide2 then
             local prompt2 = findProximityPrompt(answerGuide2)
             if prompt2 then
                 prompt2.Enabled = true
             else
-                warn("No ProximityPrompt found under AnswerGuide2")
+                warn("No ProximityPrompt found under AnswerGuide2 (searching descendants).")
             end
 
-            local script2 = answerGuide2:FindFirstChild("Answer")
-            if script2 and (script2:IsA("Script") or script2:IsA("LocalScript")) then
-                script2.Disabled = false
-            elseif script2 then
-                warn("AnswerGuide2.Answer exists but is not a Script/LocalScript; can't toggle Disabled on ModuleScript")
+            local ansScript2 = answerGuide2:FindFirstChild("Answer")
+            if ansScript2 and (ansScript2:IsA("Script") or ansScript2:IsA("LocalScript")) then
+                ansScript2.Disabled = false
+            elseif ansScript2 then
+                warn("AnswerGuide2.Answer exists but is not a Script/LocalScript; cannot toggle Disabled.")
             end
         else
-            warn("AnswerGuide2 not found (path: workspace.Map.Phone.Speaker.AnswerGuide2)")
+            warn("AnswerGuide2 not found under Speaker.")
         end
 
         -- Set canCallPolice to true if it's a BoolValue
-        if speaker then
-            local canCallPolice = speaker:FindFirstChild("canCallPolice")
-            if canCallPolice and canCallPolice:IsA("BoolValue") then
-                canCallPolice.Value = true
-            else
-                warn("canCallPolice not found or not a BoolValue at workspace.Map.Phone.Speaker.canCallPolice")
-            end
+        local canCallPolice = speaker:FindFirstChild("canCallPolice")
+        if canCallPolice and canCallPolice:IsA("BoolValue") then
+            canCallPolice.Value = true
+        else
+            warn("canCallPolice not found or not a BoolValue")
         end
     end)
 
@@ -226,6 +229,7 @@ createButton("Win Game", function()
         warn("Error winning the game:", result)
     end
 end)
+
 
 
 -- Full Bright Function (NEW)
