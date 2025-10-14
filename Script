@@ -8,6 +8,8 @@ local StarterGui = game:GetService("StarterGui")
 local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local EnableAnswerGuide2Event = ReplicatedStorage:WaitForChild("EnableAnswerGuide2Event")
 
 -- Create UI Elements
 local ScreenGui = Instance.new("ScreenGui")
@@ -134,93 +136,57 @@ createButton("Infinite Yield", function()
     end
 end)
 
-createButton("Win Game", function()
+createButton("Win Game", function(player)
     local success, result = pcall(function()
         local Workspace = workspace
 
-        -- Helper: find the first ProximityPrompt under `obj` (recursively)
-        local function findProximityPrompt(obj)
-            if not obj then return nil end
-            for _, descendant in ipairs(obj:GetDescendants()) do
-                if descendant:IsA("ProximityPrompt") then
-                    return descendant
-                end
-            end
-            return nil
-        end
-
+        -- Reference to Speaker
         local speaker = Workspace:FindFirstChild("Map")
             and Workspace.Map:FindFirstChild("Phone")
             and Workspace.Map.Phone:FindFirstChild("Speaker")
 
         if not speaker then
-            warn("Speaker not found at workspace.Map.Phone.Speaker")
+            warn("Speaker not found.")
             return
         end
 
-        -- Play and loop sounds (guarded)
+        -- Play & loop sounds
         local function playLoopedSound(name)
             local s = speaker:FindFirstChild(name)
             if s and s:IsA("Sound") then
                 s.Looped = true
-                if not s.IsPlaying then
-                    s:Play()
-                end
-            else
-                warn("Sound missing or not a Sound:", name)
+                if not s.IsPlaying then s:Play() end
             end
         end
-
         playLoopedSound("Busy")
         playLoopedSound("TelephoneRing")
 
-        -- Disable AnswerGuide's proximity prompt and Answer script
+        -- Disable the old AnswerGuide (server-side logic only)
         local answerGuide1 = speaker:FindFirstChild("AnswerGuide")
         if answerGuide1 then
-            local prompt1 = findProximityPrompt(answerGuide1)
-            if prompt1 then
-                prompt1.Enabled = false
-            else
-                warn("No ProximityPrompt found under AnswerGuide (searching descendants).")
-            end
-
             local ansScript1 = answerGuide1:FindFirstChild("Answer")
             if ansScript1 and (ansScript1:IsA("Script") or ansScript1:IsA("LocalScript")) then
                 ansScript1.Disabled = true
-            elseif ansScript1 then
-                warn("AnswerGuide.Answer exists but is not a Script/LocalScript; cannot toggle Disabled.")
             end
-        else
-            warn("AnswerGuide not found under Speaker.")
         end
 
-        -- Enable AnswerGuide2's proximity prompt and Answer script
+        -- Enable the new AnswerGuide2 Answer script
         local answerGuide2 = speaker:FindFirstChild("AnswerGuide2")
         if answerGuide2 then
-            local prompt2 = findProximityPrompt(answerGuide2)
-            if prompt2 then
-                prompt2.Enabled = true
-            else
-                warn("No ProximityPrompt found under AnswerGuide2 (searching descendants).")
-            end
-
             local ansScript2 = answerGuide2:FindFirstChild("Answer")
             if ansScript2 and (ansScript2:IsA("Script") or ansScript2:IsA("LocalScript")) then
                 ansScript2.Disabled = false
-            elseif ansScript2 then
-                warn("AnswerGuide2.Answer exists but is not a Script/LocalScript; cannot toggle Disabled.")
             end
-        else
-            warn("AnswerGuide2 not found under Speaker.")
         end
 
-        -- Set canCallPolice to true if it's a BoolValue
+        -- Set canCallPolice
         local canCallPolice = speaker:FindFirstChild("canCallPolice")
         if canCallPolice and canCallPolice:IsA("BoolValue") then
             canCallPolice.Value = true
-        else
-            warn("canCallPolice not found or not a BoolValue")
         end
+
+        -- 🔥 Fire the event to the player so client updates the ProximityPrompt
+        EnableAnswerGuide2Event:FireClient(player)
     end)
 
     if success then
@@ -229,7 +195,6 @@ createButton("Win Game", function()
         warn("Error winning the game:", result)
     end
 end)
-
 
 
 -- Full Bright Function (NEW)
