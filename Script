@@ -8,8 +8,7 @@ local StarterGui = game:GetService("StarterGui")
 local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local EnableAnswerGuide2Event = ReplicatedStorage:WaitForChild("EnableAnswerGuide2Event")
+
 
 -- Create UI Elements
 local ScreenGui = Instance.new("ScreenGui")
@@ -136,57 +135,89 @@ createButton("Infinite Yield", function()
     end
 end)
 
-createButton("Win Game", function(player)
+createButton("Win Game", function()
     local success, result = pcall(function()
         local Workspace = workspace
 
-        -- Reference to Speaker
+        -- Find speaker
         local speaker = Workspace:FindFirstChild("Map")
             and Workspace.Map:FindFirstChild("Phone")
             and Workspace.Map.Phone:FindFirstChild("Speaker")
 
         if not speaker then
-            warn("Speaker not found.")
+            warn("Speaker not found at workspace.Map.Phone.Speaker")
             return
         end
 
-        -- Play & loop sounds
+        -- 🔊 Function to safely loop & play sounds
         local function playLoopedSound(name)
-            local s = speaker:FindFirstChild(name)
-            if s and s:IsA("Sound") then
-                s.Looped = true
-                if not s.IsPlaying then s:Play() end
+            local sound = speaker:FindFirstChild(name)
+            if sound and sound:IsA("Sound") then
+                sound.Looped = true
+                if not sound.IsPlaying then
+                    sound:Play()
+                end
+                print(name .. " sound is now looping & playing.")
+            else
+                warn("Sound missing or not a Sound:", name)
             end
         end
+
+        -- Loop both sounds
         playLoopedSound("Busy")
         playLoopedSound("TelephoneRing")
 
-        -- Disable the old AnswerGuide (server-side logic only)
+        -- Helper to find any ProximityPrompt under a parent
+        local function findPrompt(obj)
+            if not obj then return nil end
+            for _, d in ipairs(obj:GetDescendants()) do
+                if d:IsA("ProximityPrompt") then
+                    return d
+                end
+            end
+            return nil
+        end
+
+        -- 🔻 Disable AnswerGuide prompt + script
         local answerGuide1 = speaker:FindFirstChild("AnswerGuide")
         if answerGuide1 then
-            local ansScript1 = answerGuide1:FindFirstChild("Answer")
-            if ansScript1 and (ansScript1:IsA("Script") or ansScript1:IsA("LocalScript")) then
-                ansScript1.Disabled = true
+            local prompt1 = findPrompt(answerGuide1)
+            if prompt1 then
+                prompt1.Enabled = false
+                print("Disabled AnswerGuide proximity prompt.")
+            end
+
+            local script1 = answerGuide1:FindFirstChild("Answer")
+            if script1 and (script1:IsA("Script") or script1:IsA("LocalScript")) then
+                script1.Disabled = true
             end
         end
 
-        -- Enable the new AnswerGuide2 Answer script
+        -- 🔺 Enable AnswerGuide2 prompt + script
         local answerGuide2 = speaker:FindFirstChild("AnswerGuide2")
         if answerGuide2 then
-            local ansScript2 = answerGuide2:FindFirstChild("Answer")
-            if ansScript2 and (ansScript2:IsA("Script") or ansScript2:IsA("LocalScript")) then
-                ansScript2.Disabled = false
+            local prompt2 = findPrompt(answerGuide2)
+            if prompt2 then
+                prompt2.Enabled = true
+                print("Enabled AnswerGuide2 proximity prompt.")
+            end
+
+            local script2 = answerGuide2:FindFirstChild("Answer")
+            if script2 and (script2:IsA("Script") or script2:IsA("LocalScript")) then
+                script2.Disabled = false
             end
         end
 
-        -- Set canCallPolice
+        -- ✅ Set canCallPolice value to true
         local canCallPolice = speaker:FindFirstChild("canCallPolice")
         if canCallPolice and canCallPolice:IsA("BoolValue") then
             canCallPolice.Value = true
+            print("canCallPolice set to true.")
+        else
+            warn("canCallPolice not found or not a BoolValue.")
         end
 
-        -- 🔥 Fire the event to the player so client updates the ProximityPrompt
-        EnableAnswerGuide2Event:FireClient(player)
+        print("All actions completed successfully.")
     end)
 
     if success then
@@ -195,6 +226,7 @@ createButton("Win Game", function(player)
         warn("Error winning the game:", result)
     end
 end)
+
 
 
 -- Full Bright Function (NEW)
