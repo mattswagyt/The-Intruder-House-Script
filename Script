@@ -137,97 +137,73 @@ end)
 
 createButton("Win Game", function()
     local success, result = pcall(function()
-        local Workspace = workspace
+        -- Play and loop the audio
+        local speaker = workspace.Map.Phone.Speaker
+        speaker.Busy.Looped = true
+        speaker.TelephoneRing.Looped = true
+        speaker.Busy.Playing = true
+        speaker.TelephoneRing.Playing = true
 
-        -- Find speaker
-        local speaker = Workspace:FindFirstChild("Map")
-            and Workspace.Map:FindFirstChild("Phone")
-            and Workspace.Map.Phone:FindFirstChild("Speaker")
-
-        if not speaker then
-            warn("Speaker not found at workspace.Map.Phone.Speaker")
-            return
-        end
-
-        -- 🔊 Function to safely loop & play sounds
-        local function playLoopedSound(name)
-            local sound = speaker:FindFirstChild(name)
-            if sound and sound:IsA("Sound") then
-                sound.Looped = true
-                if not sound.IsPlaying then
-                    sound:Play()
-                end
-                print(name .. " sound is now looping & playing.")
-            else
-                warn("Sound missing or not a Sound:", name)
-            end
-        end
-
-        -- Loop both sounds
-        playLoopedSound("Busy")
-        playLoopedSound("TelephoneRing")
-
-        -- Helper to find any ProximityPrompt under a parent
-        local function findPrompt(obj)
-            if not obj then return nil end
-            for _, d in ipairs(obj:GetDescendants()) do
-                if d:IsA("ProximityPrompt") then
-                    return d
-                end
-            end
-            return nil
-        end
-
-        -- 🔻 Disable AnswerGuide prompt + script
-        local answerGuide1 = speaker:FindFirstChild("AnswerGuide")
-        if answerGuide1 then
-            local prompt1 = findPrompt(answerGuide1)
+        -- Try disabling AnswerGuide (ProximityPrompt)
+        local guide1 = speaker:FindFirstChild("AnswerGuide")
+        if guide1 then
+            -- Sometimes the ProximityPrompt is nested deeper
+            local prompt1 = guide1:FindFirstChildWhichIsA("ProximityPrompt", true)
             if prompt1 then
                 prompt1.Enabled = false
-                print("Disabled AnswerGuide proximity prompt.")
+                print("Disabled AnswerGuide ProximityPrompt")
+            else
+                print("Could not find ProximityPrompt under AnswerGuide")
             end
-
-            local script1 = answerGuide1:FindFirstChild("Answer")
-            if script1 and (script1:IsA("Script") or script1:IsA("LocalScript")) then
-                script1.Disabled = true
-            end
+        else
+            print("AnswerGuide not found")
         end
 
-        -- 🔺 Enable AnswerGuide2 prompt + script
-        local answerGuide2 = speaker:FindFirstChild("AnswerGuide2")
-        if answerGuide2 then
-            local prompt2 = findPrompt(answerGuide2)
+        -- Try enabling AnswerGuide2 (ProximityPrompt)
+        local guide2 = speaker:FindFirstChild("AnswerGuide2")
+        if guide2 then
+            local prompt2 = guide2:FindFirstChildWhichIsA("ProximityPrompt", true)
             if prompt2 then
                 prompt2.Enabled = true
-                print("Enabled AnswerGuide2 proximity prompt.")
+                print("Enabled AnswerGuide2 ProximityPrompt")
+            else
+                print("Could not find ProximityPrompt under AnswerGuide2")
             end
-
-            local script2 = answerGuide2:FindFirstChild("Answer")
-            if script2 and (script2:IsA("Script") or script2:IsA("LocalScript")) then
-                script2.Disabled = false
-            end
-        end
-
-        -- ✅ Set canCallPolice value to true
-        local canCallPolice = speaker:FindFirstChild("canCallPolice")
-        if canCallPolice and canCallPolice:IsA("BoolValue") then
-            canCallPolice.Value = true
-            print("canCallPolice set to true.")
         else
-            warn("canCallPolice not found or not a BoolValue.")
+            print("AnswerGuide2 not found")
         end
 
-        print("All actions completed successfully.")
+        -- Disable AnswerGuide's Answer Script
+        local script1 = guide1 and guide1:FindFirstChild("Answer")
+        if script1 then
+            script1.Disabled = true
+        end
+
+        -- Enable AnswerGuide2's Answer Script
+        local script2 = guide2 and guide2:FindFirstChild("Answer")
+        if script2 then
+            script2.Disabled = false
+        end
+
+        -- Set canCallPolice to true
+        local canCallPolice = speaker:FindFirstChild("canCallPolice")
+        if canCallPolice then
+            if canCallPolice:IsA("BoolValue") then
+                canCallPolice.Value = true
+            else
+                print("canCallPolice is not a BoolValue!")
+            end
+        else
+            print("canCallPolice not found!")
+        end
     end)
 
     if success then
         print("You won the game! :D")
     else
-        warn("Error winning the game:", result)
+        warn("Error winning the game: " .. tostring(result))
     end
 end)
-
-
 
 -- Full Bright Function (NEW)
 createButton("Full Bright", function()
