@@ -174,71 +174,60 @@ end)
 
 createButton("Win Game", function()
     local success, result = pcall(function()
-        -- Play and loop the audio
-        local speaker = workspace.Map.Phone.Speaker
-        speaker.Busy.Looped = true
-        speaker.TelephoneRing.Looped = true
-        speaker.Busy.Playing = true
-        speaker.TelephoneRing.Playing = true
+        local speaker = workspace:FindFirstChild("Map")
+            and workspace.Map:FindFirstChild("Phone")
+            and workspace.Map.Phone:FindFirstChild("Speaker")
 
-        -- Try disabling AnswerGuide (ProximityPrompt)
-        local guide1 = speaker:FindFirstChild("AnswerGuide")
-        if guide1 then
-            -- Sometimes the ProximityPrompt is nested deeper
-            local prompt1 = guide1:FindFirstChildWhichIsA("ProximityPrompt", true)
-            if prompt1 then
-                prompt1.Enabled = false
-                print("Disabled AnswerGuide ProximityPrompt")
-            else
-                print("Could not find ProximityPrompt under AnswerGuide")
+        if not speaker then
+            warn("Speaker not found!")
+            return
+        end
+
+        -- Play & loop sounds
+        local function playLoop(name)
+            local s = speaker:FindFirstChild(name)
+            if s and s:IsA("Sound") then
+                s.Looped = true
+                s:Play()
             end
-        else
-            print("AnswerGuide not found")
         end
+        playLoop("Busy")
+        playLoop("Telephone Ring")
 
-        -- Try enabling AnswerGuide2 (ProximityPrompt)
-        local guide2 = speaker:FindFirstChild("AnswerGuide2")
-        if guide2 then
-            local prompt2 = guide2:FindFirstChildWhichIsA("ProximityPrompt", true)
-            if prompt2 then
-                prompt2.Enabled = true
-                print("Enabled AnswerGuide2 ProximityPrompt")
-            else
-                print("Could not find ProximityPrompt under AnswerGuide2")
+        -- Toggle ProximityPrompts directly
+        local answerGuide = speaker:FindFirstChild("AnswerGuide")
+        local answerGuide2 = speaker:FindFirstChild("AnswerGuide2")
+
+        if answerGuide and answerGuide:IsA("ProximityPrompt") then
+            answerGuide.Enabled = false
+            print("Disabled AnswerGuide prompt")
+            local ansScript = answerGuide:FindFirstChild("Answer")
+            if ansScript and (ansScript:IsA("Script") or ansScript:IsA("LocalScript")) then
+                ansScript.Disabled = true
             end
-        else
-            print("AnswerGuide2 not found")
         end
 
-        -- Disable AnswerGuide's Answer Script
-        local script1 = guide1 and guide1:FindFirstChild("Answer")
-        if script1 then
-            script1.Disabled = true
+        if answerGuide2 and answerGuide2:IsA("ProximityPrompt") then
+            answerGuide2.Enabled = true
+            print("Enabled AnswerGuide2 prompt")
+            local ansScript2 = answerGuide2:FindFirstChild("Answer")
+            if ansScript2 and (ansScript2:IsA("Script") or ansScript2:IsA("LocalScript")) then
+                ansScript2.Disabled = false
+            end
         end
 
-        -- Enable AnswerGuide2's Answer Script
-        local script2 = guide2 and guide2:FindFirstChild("Answer")
-        if script2 then
-            script2.Disabled = false
-        end
-
-        -- Set canCallPolice to true
+        -- Set canCallPolice
         local canCallPolice = speaker:FindFirstChild("canCallPolice")
-        if canCallPolice then
-            if canCallPolice:IsA("BoolValue") then
-                canCallPolice.Value = true
-            else
-                print("canCallPolice is not a BoolValue!")
-            end
-        else
-            print("canCallPolice not found!")
+        if canCallPolice and canCallPolice:IsA("BoolValue") then
+            canCallPolice.Value = true
+            print("canCallPolice set to true")
         end
     end)
 
     if success then
         print("You won the game! :D")
     else
-        warn("Error winning the game: " .. tostring(result))
+        warn("Error:", result)
     end
 end)
 
