@@ -135,40 +135,14 @@ createButton("Infinite Yield", function()
     end
 end)
 
-createButton("Debug Speaker Hierarchy", function()
-    local function printDescendants(obj, indent)
-        indent = indent or ""
-        print(indent .. obj.Name .. " (" .. obj.ClassName .. ")")
-        for _, child in ipairs(obj:GetChildren()) do
-            printDescendants(child, indent .. "  ")
-        end
-    end
-
+createButton("Dark Dex", function()
     local success, result = pcall(function()
-        local speaker = workspace:FindFirstChild("Map")
-        if speaker then
-            speaker = speaker:FindFirstChild("Phone")
-            if speaker then
-                speaker = speaker:FindFirstChild("Speaker")
-                if speaker then
-                    print("===== SPEAKER HIERARCHY =====")
-                    printDescendants(speaker)
-                    print("===== END OF HIERARCHY =====")
-                else
-                    warn("Speaker not found inside workspace.Map.Phone")
-                end
-            else
-                warn("Phone not found inside workspace.Map")
-            end
-        else
-            warn("Map not found in workspace")
-        end
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
     end)
-
     if success then
-        print("Hierarchy printed successfully.")
+        print("Dark Dex executed!")
     else
-        warn("Error printing hierarchy: " .. tostring(result))
+        print("Error executing Dark Dex")
     end
 end)
 
