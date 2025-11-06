@@ -440,7 +440,7 @@ end)
 createButton("Become The Intruder (WIP!)", function()
     local player = game:GetService("Players").LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
-    local camera = workspace.CurrentCamera
+    local camera = game:GetService("Workspace").CurrentCamera
     local intruder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Intruder")
 
     if not intruder then
@@ -448,50 +448,56 @@ createButton("Become The Intruder (WIP!)", function()
         return
     end
 
-    -- ✅ Make player invisible by removing everything EXCEPT HumanoidRootPart + Humanoid
-    for _, v in pairs(character:GetChildren()) do
-        if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-            v:Destroy()
-        elseif v:IsA("Accessory") or v:IsA("Clothing") or v:IsA("ShirtGraphic") then
-            v:Destroy()
-        elseif v:IsA("Decal") then
-            v:Destroy()
-        end
+    -- Make the player invisible by removing their HumanoidRootPart
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        humanoidRootPart:Destroy()
+        print("HumanoidRootPart removed. You are now invisible!")
+    else
+        print("HumanoidRootPart not found in the character!")
     end
-    print("✅ Player model removed. You are now invisible but still have movement.")
 
     -- Attach player to The Intruder
     local intruderPosition = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
     if intruderPosition then
-        local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso") or character:FindFirstChild("HumanoidRootPart")
+        -- Weld player's torso (or another part) to The Intruder's HumanoidRootPart
+        local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
         if torso then
             local weld = Instance.new("Weld")
             weld.Part0 = torso
             weld.Part1 = intruderPosition
-            weld.C0 = CFrame.new(0, 0, 0)
+            weld.C0 = CFrame.new(0, 0, 0) -- Align to The Intruder's position
             weld.Parent = torso
-            print("✅ You are now attached to The Intruder!")
+            print("You are now attached to The Intruder!")
         else
-            print("No torso/HumanoidRootPart found to weld.")
+            print("No torso found in the character to weld.")
         end
     else
-        print("Intruder model has no HRP!")
+        print("The Intruder's position part not found!")
     end
 
-    -- Unlock camera controls
-    player.CameraMode = Enum.CameraMode.Classic
-    player.CameraMinZoomDistance = 0
-    player.CameraMaxZoomDistance = 50
-    print("🔓 Camera unlocked (first & third person allowed).")
+    -- Unlock the camera and allow free movement
 
-    -- Make the camera face the intruder constantly
-    spawn(function()
-        while task.wait(0.1) do
-            if intruderPosition then
+    local p = game.Players.LocalPlayer
+
+    p.CameraMode = Enum.CameraMode.Classic
+    p.CameraMinZoomDistance = 0
+    p.CameraMaxZoomDistance = 50
+
+    print("Camera unlocked. You can now move freely in first and third person.")
+
+    -- Make the camera aim toward the intruder's direction
+    local function updateCamera()
+        while true do
+            if intruder and intruderPosition then
                 camera.CFrame = CFrame.new(camera.CFrame.Position, intruderPosition.Position)
             end
+            wait(0.1) -- Update every 0.1 seconds
         end
-    end)
+    end
+
+    -- Run the camera update in a separate thread
+    spawn(updateCamera)
 end)
 
 -- Final Touch
