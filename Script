@@ -279,6 +279,55 @@ createButton("Intruder Ignores You", function()
     end
 end)
 
+createButton("Gain Door Access", function()
+    local door = workspace:FindFirstChild("Map")
+        and workspace.Map:FindFirstChild("Door")
+        and workspace.Map.Door:FindFirstChild("Door")
+
+    if not door then
+        warn("🚪 Door not found! Make sure the map structure matches.")
+        return
+    end
+
+    local knob = door:FindFirstChild("Knob1")
+    if not knob then
+        warn("🔩 Knob1 not found!")
+        return
+    end
+
+    local openPrompt = knob:FindFirstChild("Open")
+    local closePrompt = knob:FindFirstChild("Close")
+
+    if not openPrompt or not closePrompt then
+        warn("❌ Open or Close ProximityPrompt not found!")
+        return
+    end
+
+    -- Enable open prompt to start
+    openPrompt.Enabled = true
+    closePrompt.Enabled = false
+    print("✅ Door control active: Open enabled, Close disabled")
+
+    -- Toggle logic (runs forever)
+    task.spawn(function()
+        while task.wait() do
+            -- If player used Open → switch to Close
+            if openPrompt.Enabled and openPrompt.Triggered:Wait() then
+                openPrompt.Enabled = false
+                closePrompt.Enabled = true
+                print("➡️ Door opened → Close prompt enabled")
+            end
+
+            -- If player used Close → switch to Open
+            if closePrompt.Enabled and closePrompt.Triggered:Wait() then
+                closePrompt.Enabled = false
+                openPrompt.Enabled = true
+                print("⬅️ Door closed → Open prompt enabled")
+            end
+        end
+    end)
+end)
+
 createButton("Make Easy Mode", function()
     local values = workspace.Values
     if values then
