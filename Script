@@ -439,72 +439,59 @@ end)
 
 createButton("Become The Intruder (WIP!)", function()
     local player = game:GetService("Players").LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local cam = workspace.CurrentCamera
+    local character = player.Character or player.CharacterAdded:Wait()
+    local camera = workspace.CurrentCamera
+    local intruder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Intruder")
 
-    local map = workspace:FindFirstChild("Map")
-    if not map then
-        print("Map not found!")
-        return
-    end
-
-    local intruder = map:FindFirstChild("Intruder")
     if not intruder then
-        print("Intruder not found!")
+        print("Intruder not found in the map!")
         return
     end
 
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    local hum = char:FindFirstChildWhichIsA("Humanoid")
-
-    if not hrp or not hum then
-        print("Humanoid or HRP missing!")
-        return
-    end
-
-    -- ✅ Delete player visual body parts but keep Humanoid + HRP
-    for _, part in ipairs(char:GetChildren()) do
-        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-            part:Destroy()
-        elseif part:IsA("Accessory") or part:IsA("Clothing") then
-            part:Destroy()
+    -- ✅ Make player invisible by removing everything EXCEPT HumanoidRootPart + Humanoid
+    for _, v in pairs(character:GetChildren()) do
+        if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+            v:Destroy()
+        elseif v:IsA("Accessory") or v:IsA("Clothing") or v:IsA("ShirtGraphic") then
+            v:Destroy()
+        elseif v:IsA("Decal") then
+            v:Destroy()
         end
     end
-    print("Player model hidden (Invisible).")
+    print("✅ Player model removed. You are now invisible but still have movement.")
 
-    -- ✅ Move HRP into Intruder model
-    hrp.Parent = intruder
-    hrp.CFrame = intruder:GetPivot()
-    print("HumanoidRootPart moved into Intruder model.")
-
-    -- ✅ Weld HRP to Intruder so you control movement
-    local intruderHRP = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
-    if intruderHRP then
-        local weld = Instance.new("WeldConstraint")
-        weld.Part0 = hrp
-        weld.Part1 = intruderHRP
-        weld.Parent = hrp
-        print("Player movement synced with Intruder.")
+    -- Attach player to The Intruder
+    local intruderPosition = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
+    if intruderPosition then
+        local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso") or character:FindFirstChild("HumanoidRootPart")
+        if torso then
+            local weld = Instance.new("Weld")
+            weld.Part0 = torso
+            weld.Part1 = intruderPosition
+            weld.C0 = CFrame.new(0, 0, 0)
+            weld.Parent = torso
+            print("✅ You are now attached to The Intruder!")
+        else
+            print("No torso/HumanoidRootPart found to weld.")
+        end
     else
-        print("Intruder has no base part to attach to!")
+        print("Intruder model has no HRP!")
     end
 
-    -- ✅ Unlock Camera to allow third-person + looking around
+    -- Unlock camera controls
     player.CameraMode = Enum.CameraMode.Classic
     player.CameraMinZoomDistance = 0
     player.CameraMaxZoomDistance = 50
-    print("Camera unlocked (third-person enabled).")
+    print("🔓 Camera unlocked (first & third person allowed).")
 
-    -- ✅ Camera follows but looks where intruder is facing
-    task.spawn(function()
+    -- Make the camera face the intruder constantly
+    spawn(function()
         while task.wait(0.1) do
-            if intruderHRP then
-                cam.CFrame = CFrame.new(cam.CFrame.Position, intruderHRP.Position + intruderHRP.CFrame.LookVector * 10)
+            if intruderPosition then
+                camera.CFrame = CFrame.new(camera.CFrame.Position, intruderPosition.Position)
             end
         end
     end)
-
-    print("✅ You are now controlling The Intruder.")
 end)
 
 -- Final Touch
