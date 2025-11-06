@@ -1,5 +1,4 @@
--- Roblox Lua Script for "The Intruder - House" Map (By BMF)
--- Script handles a draggable UI with multiple functionalities
+-- The Intruder - House (By BMF)
 
 -- Variables
 local Players = game:GetService("Players")
@@ -83,7 +82,7 @@ local function createButton(name, callback)
     return Button
 end
 
--- Intruder Hallway Warning Notification (NEW)
+-- Intruder Hallway Warning Notification
 local function notifyWarning()
     StarterGui:SetCore("SendNotification", {
         Title = "WARNING",
@@ -113,14 +112,10 @@ spawn(function()
     end
 end)
 
--- Buttons with Functions
-createButton("The Intruder - Mall (Script by BMF)", function()
-    print("The Intruder - Mall script executed!")
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/mattswagyt/Intruder-Mall/refs/heads/main/Script'))()
-end)
+-- Buttons
 
 createButton("Other Intruder Script", function()
-    print("Other script triggered")
+    print("Other script executed!")
     loadstring(game:HttpGet("https://pastebin.com/raw/FGjjwm6W"))()
 end)
 
@@ -135,14 +130,14 @@ createButton("Infinite Yield", function()
     end
 end)
 
-createButton("Dark Dex", function()
+createButton("Dex Explorer", function()
     local success, result = pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
     end)
     if success then
-        print("Dark Dex executed!")
+        print("Dex Explorer executed!")
     else
-        print("Error executing Dark Dex")
+        print("Error executing Dex Explorer")
     end
 end)
 
@@ -157,24 +152,41 @@ createButton("Win Game", function()
             return
         end
 
-        -- Play & loop sounds
+        -- Play & loop sounds (but only if not already playing)
         local function playLoop(name)
             local s = speaker:FindFirstChild(name)
             if s and s:IsA("Sound") then
                 s.Looped = true
-                s:Play()
+                if not s.IsPlaying then
+                    s:Play()
+                end
             end
         end
+
         playLoop("Busy")
         playLoop("Telephone Ring")
 
-        -- Toggle ProximityPrompts directly
+        -- Make Telephone Ring
+        -- Makes sure TelephoneRing plays even if script names differ/caps differ:
+        local phone = workspace.Map:FindFirstChild("Phone")
+        local sp = phone and phone:FindFirstChild("Speaker")
+        local ring = sp and sp:FindFirstChild("TelephoneRing")
+        if ring and ring:IsA("Sound") then
+            ring.Looped = true
+            if not ring.IsPlaying then
+                ring:Play()
+                print("TelephoneRing forced to play.")
+            else
+                print("TelephoneRing is already playing, skipping.")
+            end
+        end
+
+        -- Toggle ProximityPrompts
         local answerGuide = speaker:FindFirstChild("AnswerGuide")
         local answerGuide2 = speaker:FindFirstChild("AnswerGuide2")
 
         if answerGuide and answerGuide:IsA("ProximityPrompt") then
             answerGuide.Enabled = false
-            print("Disabled AnswerGuide prompt")
             local ansScript = answerGuide:FindFirstChild("Answer")
             if ansScript and (ansScript:IsA("Script") or ansScript:IsA("LocalScript")) then
                 ansScript.Disabled = true
@@ -183,7 +195,6 @@ createButton("Win Game", function()
 
         if answerGuide2 and answerGuide2:IsA("ProximityPrompt") then
             answerGuide2.Enabled = true
-            print("Enabled AnswerGuide2 prompt")
             local ansScript2 = answerGuide2:FindFirstChild("Answer")
             if ansScript2 and (ansScript2:IsA("Script") or ansScript2:IsA("LocalScript")) then
                 ansScript2.Disabled = false
@@ -194,7 +205,6 @@ createButton("Win Game", function()
         local canCallPolice = speaker:FindFirstChild("canCallPolice")
         if canCallPolice and canCallPolice:IsA("BoolValue") then
             canCallPolice.Value = true
-            print("canCallPolice set to true")
         end
     end)
 
@@ -205,7 +215,7 @@ createButton("Win Game", function()
     end
 end)
 
--- Full Bright Function (NEW)
+-- Full Bright Function
 createButton("Full Bright", function()
     -- Set all lighting properties to max visibility
     Lighting.Brightness = 5
@@ -214,6 +224,16 @@ createButton("Full Bright", function()
     Lighting.GlobalShadows = false
     Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
     print("Full Bright activated!")
+end)
+
+createButton("Unlock Camera", function()
+    local p = game.Players.LocalPlayer
+
+    p.CameraMode = Enum.CameraMode.Classic
+    p.CameraMinZoomDistance = 0
+    p.CameraMaxZoomDistance = 50
+
+    print("✅ Camera unlocked! You can now zoom out into third-person.")
 end)
 
 createButton("Intruder Ignores You", function()
@@ -256,6 +276,15 @@ createButton("Intruder Ignores You", function()
     if boxOfShame then
         boxOfShame:Destroy()
         print("BoxOfShame destroyed!")
+    end
+end)
+
+createButton("Make Easy Mode", function()
+    local values = workspace.Values
+    if values then
+        values.isNightmareMode.Value = false
+        values.isEasyMode.Value = true
+        print("It is now Easy Mode!")
     end
 end)
 
@@ -448,7 +477,13 @@ createButton("Become The Intruder (WIP!)", function()
     end
 
     -- Unlock the camera and allow free movement
-    camera.CameraType = Enum.CameraType.Scriptable
+
+    local p = game.Players.LocalPlayer
+
+    p.CameraMode = Enum.CameraMode.Classic
+    p.CameraMinZoomDistance = 0
+    p.CameraMaxZoomDistance = 50
+
     print("Camera unlocked. You can now move freely in first and third person.")
 
     -- Make the camera aim toward the intruder's direction
