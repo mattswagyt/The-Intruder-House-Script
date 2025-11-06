@@ -439,65 +439,72 @@ end)
 
 createButton("Become The Intruder (WIP!)", function()
     local player = game:GetService("Players").LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local camera = game:GetService("Workspace").CurrentCamera
-    local intruder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Intruder")
+    local char = player.Character or player.CharacterAdded:Wait()
+    local cam = workspace.CurrentCamera
 
-    if not intruder then
-        print("Intruder not found in the map!")
+    local map = workspace:FindFirstChild("Map")
+    if not map then
+        print("Map not found!")
         return
     end
 
-    -- Make the player invisible by removing their HumanoidRootPart
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if humanoidRootPart then
-        humanoidRootPart:Destroy()
-        print("HumanoidRootPart removed. You are now invisible!")
-    else
-        print("HumanoidRootPart not found in the character!")
+    local intruder = map:FindFirstChild("Intruder")
+    if not intruder then
+        print("Intruder not found!")
+        return
     end
 
-    -- Attach player to The Intruder
-    local intruderPosition = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
-    if intruderPosition then
-        -- Weld player's torso (or another part) to The Intruder's HumanoidRootPart
-        local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
-        if torso then
-            local weld = Instance.new("Weld")
-            weld.Part0 = torso
-            weld.Part1 = intruderPosition
-            weld.C0 = CFrame.new(0, 0, 0) -- Align to The Intruder's position
-            weld.Parent = torso
-            print("You are now attached to The Intruder!")
-        else
-            print("No torso found in the character to weld.")
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChildWhichIsA("Humanoid")
+
+    if not hrp or not hum then
+        print("Humanoid or HRP missing!")
+        return
+    end
+
+    -- ✅ Delete player visual body parts but keep Humanoid + HRP
+    for _, part in ipairs(char:GetChildren()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            part:Destroy()
+        elseif part:IsA("Accessory") or part:IsA("Clothing") then
+            part:Destroy()
         end
+    end
+    print("Player model hidden (Invisible).")
+
+    -- ✅ Move HRP into Intruder model
+    hrp.Parent = intruder
+    hrp.CFrame = intruder:GetPivot()
+    print("HumanoidRootPart moved into Intruder model.")
+
+    -- ✅ Weld HRP to Intruder so you control movement
+    local intruderHRP = intruder:FindFirstChild("HumanoidRootPart") or intruder:FindFirstChildWhichIsA("BasePart")
+    if intruderHRP then
+        local weld = Instance.new("WeldConstraint")
+        weld.Part0 = hrp
+        weld.Part1 = intruderHRP
+        weld.Parent = hrp
+        print("Player movement synced with Intruder.")
     else
-        print("The Intruder's position part not found!")
+        print("Intruder has no base part to attach to!")
     end
 
-    -- Unlock the camera and allow free movement
+    -- ✅ Unlock Camera to allow third-person + looking around
+    player.CameraMode = Enum.CameraMode.Classic
+    player.CameraMinZoomDistance = 0
+    player.CameraMaxZoomDistance = 50
+    print("Camera unlocked (third-person enabled).")
 
-    local p = game.Players.LocalPlayer
-
-    p.CameraMode = Enum.CameraMode.Classic
-    p.CameraMinZoomDistance = 0
-    p.CameraMaxZoomDistance = 50
-
-    print("Camera unlocked. You can now move freely in first and third person.")
-
-    -- Make the camera aim toward the intruder's direction
-    local function updateCamera()
-        while true do
-            if intruder and intruderPosition then
-                camera.CFrame = CFrame.new(camera.CFrame.Position, intruderPosition.Position)
+    -- ✅ Camera follows but looks where intruder is facing
+    task.spawn(function()
+        while task.wait(0.1) do
+            if intruderHRP then
+                cam.CFrame = CFrame.new(cam.CFrame.Position, intruderHRP.Position + intruderHRP.CFrame.LookVector * 10)
             end
-            wait(0.1) -- Update every 0.1 seconds
         end
-    end
+    end)
 
-    -- Run the camera update in a separate thread
-    spawn(updateCamera)
+    print("✅ You are now controlling The Intruder.")
 end)
 
 -- Final Touch
